@@ -12,75 +12,70 @@
 </head>
 
 <?php
-$polo = 1;
-$url = "https://innovation.org.br/api/rm/dadosAluno/alunosPorPolo.php?codCampus=" . $polo;
-$alunos_json = json_decode(file_get_contents($url));
-$alunos_array = json_decode(file_get_contents($url), true);
+$json = json_decode(getJSON());
+$array = json_decode(getJSON(), true);
 
 $pesquisa = isset($_GET['pesquisa']) ? $_GET['pesquisa'] : '';
 
-$total_itens = count($alunos_array);
-$per_page = 10;
-$total_pages = ceil($total_itens / $per_page) - 1;
-$current_page = isset($_GET['page']) ? $_GET['page'] : 0;
-$itens = $current_page == 0 ? 0 : $current_page * $per_page;
-$first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
-$last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
-$array = array_slice($alunos_json, $itens, $per_page, true);
-
 if (!empty($pesquisa)) {
+    $arr = [];
     foreach ($array as $key => $value) {
-        if (!($value->Ra == $pesquisa)) {
-            continue;
+        if ((preg_match("/\b{$pesquisa}\b/i", $value['name'])) or (preg_match("/\b{$pesquisa}\b/i", $value['email']))) {
+            array_push($arr, (object)$value);
         } else {
-            $array = array($key => $value);
-            $total_itens = count($array);
-            $per_page = 0;
-            $total_pages = 0;
-            $current_page = 0;
-            $itens = 1;
-            $first_item = 1;
-            $last_item = 1;
+            continue;
         }
     }
+    $total_itens = count($arr);
+    $per_page = 10;
+    $total_pages = ceil($total_itens / $per_page) - 1;
+    $current_page = 0;
+    $itens = $current_page == 0 ? 0 : $current_page * $per_page;
+    $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
+    $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
+    $array = $arr;
+} else {
+    $total_itens = count($array);
+    $per_page = 10;
+    $total_pages = ceil($total_itens / $per_page) - 1;
+    $current_page = isset($_GET['page']) ? $_GET['page'] : 0;
+    $itens = $current_page == 0 ? 0 : $current_page * $per_page;
+    $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
+    $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
+    $array = array_slice($json, $itens, $per_page, true);
 }
+
 ?>
 
 <body>
 
     <div class="card m-3">
         <div class="card-body">
-            <div class="d-flex">
-                <form action="index.php?page=<?php echo 0; ?>&pesquisa=<?php echo urldecode($pesquisa); ?>" method="get" class="ms-auto">
-                    <div class="input-group w-auto ms-auto mb-3">
+            <div class="d-flex justify-content-end">
+                <form action="index.php?page=<?php echo 0; ?>&pesquisa=<?php echo urldecode($pesquisa); ?>" method="get" class="ms-auto col-5">
+                    <div class="input-group mb-3">
                         <input class="form-control rounded-start py-0" id="pesquisa" name="pesquisa" type="search" placeholder="Pesquisar" value="<?php echo $pesquisa; ?>">
-                        <button class="btn btn-primary" type="submit">
-                            Pesquisar
-                        </button>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                Pesquisar
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
-            <table class="table table-responsive table-sm">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th class="col-2">Nome</th>
-                        <th class="col-2">RA</th>
-                        <th class="col-2">Per. Letivo</th>
-                        <th class="col-2">Turma</th>
-                        <th class="col-2">Status</th>
-                        <th class="col-2">Tipo Matrícula</th>
+                        <th scope="col" class="col-6">Nome</th>
+                        <th scope="col" class="col-6">Email</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($array as $key => $aluno) {
+                    foreach ($array as $key => $pessoa) {
                         echo "<tr>";
-                        echo "<td>$aluno->Nome</td>";
-                        echo "<td>$aluno->Ra</td>";
-                        echo "<td>$aluno->PeriodoLetivo</td>";
-                        echo "<td>$aluno->Curso</td>";
-                        echo "<td>$aluno->StatusMatricula</td>";
-                        echo "<td>$aluno->TipoMatricula</td>";
+                        echo "<td>$pessoa->name</td>";
+                        echo "<td>$pessoa->email</td>";
                         echo "</tr>";
                     }
                     ?>
@@ -126,3 +121,211 @@ if (!empty($pesquisa)) {
 </body>
 
 </html>
+
+<?php
+function getJSON()
+{
+    return '[
+        {
+          "name": "Crane Cherry",
+          "email": "cranecherry@earbang.com"
+        },
+        {
+          "name": "Dana Sparks",
+          "email": "danasparks@earbang.com"
+        },
+        {
+          "name": "Jamie Sandoval",
+          "email": "jamiesandoval@earbang.com"
+        },
+        {
+          "name": "Deann Mcfarland",
+          "email": "deannmcfarland@earbang.com"
+        },
+        {
+          "name": "Lindsay Vang",
+          "email": "lindsayvang@earbang.com"
+        },
+        {
+          "name": "Ethel Bowers",
+          "email": "ethelbowers@earbang.com"
+        },
+        {
+          "name": "Espinoza Powell",
+          "email": "espinozapowell@earbang.com"
+        },
+        {
+          "name": "Cole Gardner",
+          "email": "colegardner@earbang.com"
+        },
+        {
+          "name": "Monroe Bartlett",
+          "email": "monroebartlett@earbang.com"
+        },
+        {
+          "name": "Lelia Kelly",
+          "email": "leliakelly@earbang.com"
+        },
+        {
+          "name": "Chrystal Alvarado",
+          "email": "chrystalalvarado@earbang.com"
+        },
+        {
+          "name": "Leann Palmer",
+          "email": "leannpalmer@earbang.com"
+        },
+        {
+          "name": "Nadine Cortez",
+          "email": "nadinecortez@earbang.com"
+        },
+        {
+          "name": "Luna Villarreal",
+          "email": "lunavillarreal@earbang.com"
+        },
+        {
+          "name": "Frank Evans",
+          "email": "frankevans@earbang.com"
+        },
+        {
+          "name": "Alisha Crane",
+          "email": "alishacrane@earbang.com"
+        },
+        {
+          "name": "Cunningham Odonnell",
+          "email": "cunninghamodonnell@earbang.com"
+        },
+        {
+          "name": "Oconnor Sampson",
+          "email": "oconnorsampson@earbang.com"
+        },
+        {
+          "name": "Hayes Gray",
+          "email": "hayesgray@earbang.com"
+        },
+        {
+          "name": "Strickland Fernandez",
+          "email": "stricklandfernandez@earbang.com"
+        },
+        {
+          "name": "Boone Frost",
+          "email": "boonefrost@earbang.com"
+        },
+        {
+          "name": "Megan Tate",
+          "email": "megantate@earbang.com"
+        },
+        {
+          "name": "Erma Lloyd",
+          "email": "ermalloyd@earbang.com"
+        },
+        {
+          "name": "Rush Orr",
+          "email": "rushorr@earbang.com"
+        },
+        {
+          "name": "Kathie Velasquez",
+          "email": "kathievelasquez@earbang.com"
+        },
+        {
+          "name": "Felecia Good",
+          "email": "feleciagood@earbang.com"
+        },
+        {
+          "name": "Caldwell Hendrix",
+          "email": "caldwellhendrix@earbang.com"
+        },
+        {
+          "name": "Natasha Gibson",
+          "email": "natashagibson@earbang.com"
+        },
+        {
+          "name": "Margaret Charles",
+          "email": "margaretcharles@earbang.com"
+        },
+        {
+          "name": "Mcfadden Herman",
+          "email": "mcfaddenherman@earbang.com"
+        },
+        {
+          "name": "Morrison Conley",
+          "email": "morrisonconley@earbang.com"
+        },
+        {
+          "name": "Nadia Ortiz",
+          "email": "nadiaortiz@earbang.com"
+        },
+        {
+          "name": "Melisa Garrett",
+          "email": "melisagarrett@earbang.com"
+        },
+        {
+          "name": "Marcella Hawkins",
+          "email": "marcellahawkins@earbang.com"
+        },
+        {
+          "name": "Santana Camacho",
+          "email": "santanacamacho@earbang.com"
+        },
+        {
+          "name": "Dyer Greer",
+          "email": "dyergreer@earbang.com"
+        },
+        {
+          "name": "Reynolds Wise",
+          "email": "reynoldswise@earbang.com"
+        },
+        {
+          "name": "Schroeder Warner",
+          "email": "schroederwarner@earbang.com"
+        },
+        {
+          "name": "Reed Sims",
+          "email": "reedsims@earbang.com"
+        },
+        {
+          "name": "Mercedes Case",
+          "email": "mercedescase@earbang.com"
+        },
+        {
+          "name": "Mccullough Stone",
+          "email": "mcculloughstone@earbang.com"
+        },
+        {
+          "name": "Hillary Steele",
+          "email": "hillarysteele@earbang.com"
+        },
+        {
+          "name": "Ryan Sharp",
+          "email": "ryansharp@earbang.com"
+        },
+        {
+          "name": "Autumn Burris",
+          "email": "autumnburris@earbang.com"
+        },
+        {
+          "name": "Guthrie Henderson",
+          "email": "guthriehenderson@earbang.com"
+        },
+        {
+          "name": "Penelope Hayes",
+          "email": "penelopehayes@earbang.com"
+        },
+        {
+          "name": "Santiago Castro",
+          "email": "santiagocastro@earbang.com"
+        },
+        {
+          "name": "Spence Castillo",
+          "email": "spencecastillo@earbang.com"
+        },
+        {
+          "name": "Pauline Shepard",
+          "email": "paulineshepard@earbang.com"
+        },
+        {
+          "name": "Hendricks Humphrey",
+          "email": "hendrickshumphrey@earbang.com"
+        }
+      ]';
+}
+?>
