@@ -2,13 +2,13 @@
 <html lang="en">
 
 <head>
-    <title>Paginacao retorno JSON</title>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Paginacao retorno JSON</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <?php
@@ -18,106 +18,109 @@ $array = json_decode(getJSON(), true);
 $pesquisa = isset($_GET['pesquisa']) ? $_GET['pesquisa'] : '';
 
 if (!empty($pesquisa)) {
-    $arr = [];
-    foreach ($array as $key => $value) {
-        if ((preg_match("/\b{$pesquisa}\b/i", $value['name'])) or (preg_match("/\b{$pesquisa}\b/i", $value['email']))) {
-            array_push($arr, (object)$value);
-        } else {
-            continue;
-        }
+  $arr = [];
+  foreach ($array as $key => $value) {
+    if (
+      (!empty(strstr($value['name'], $pesquisa))) or
+      (!empty(strstr($value['email'], $pesquisa)))
+    ) {
+      array_push($arr, (object)$value);
+    } else {
+      continue;
     }
-    $total_itens = count($arr);
-    $per_page = 10;
-    $total_pages = ceil($total_itens / $per_page) - 1;
-    $current_page = 0;
-    $itens = $current_page == 0 ? 0 : $current_page * $per_page;
-    $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
-    $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
-    $array = $arr;
+  }
+  $total_itens = count($arr);
+  $per_page = 10;
+  $total_pages = ceil($total_itens / $per_page) - 1 >= 0 ? ceil($total_itens / $per_page) - 1 : ceil($total_itens / $per_page);
+  $current_page = 0;
+  $itens = $current_page == 0 ? 0 : $current_page * $per_page;
+  $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
+  $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
+  $array = $arr;
 } else {
-    $total_itens = count($array);
-    $per_page = 10;
-    $total_pages = ceil($total_itens / $per_page) - 1;
-    $current_page = isset($_GET['page']) ? $_GET['page'] : 0;
-    $itens = $current_page == 0 ? 0 : $current_page * $per_page;
-    $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
-    $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
-    $array = array_slice($json, $itens, $per_page, true);
+  $total_itens = count($array);
+  $per_page = 10;
+  $total_pages = ceil($total_itens / $per_page) - 1;
+  $current_page = isset($_GET['page']) ? $_GET['page'] : 0;
+  $itens = $current_page == 0 ? 0 : $current_page * $per_page;
+  $first_item = ($itens + 1) > $total_itens ? $total_itens : ($itens + 1);
+  $last_item = ($itens + 10) > $total_itens ? $total_itens : ($itens + 10);
+  $array = array_slice($json, $itens, $per_page, true);
 }
 
 ?>
 
 <body>
 
-    <div class="card m-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-end">
-                <form action="index.php?page=<?php echo 0; ?>&pesquisa=<?php echo urldecode($pesquisa); ?>" method="get" class="ms-auto col-5">
-                    <div class="input-group mb-3">
-                        <input class="form-control rounded-start py-0" id="pesquisa" name="pesquisa" type="search" placeholder="Pesquisar" value="<?php echo $pesquisa; ?>">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">
-                                Pesquisar
-                            </button>
-                        </div>
-                    </div>
-                </form>
+  <div class="card m-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-end">
+        <form action="index.php?page=<?php echo 0; ?>&pesquisa=<?php echo urldecode($pesquisa); ?>" method="get" class="ms-auto col-5">
+          <div class="input-group mb-3">
+            <input class="form-control rounded-start py-0" id="pesquisa" name="pesquisa" type="search" placeholder="Pesquisar" value="<?php echo $pesquisa; ?>">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">
+                Pesquisar
+              </button>
             </div>
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th scope="col" class="col-6">Nome</th>
-                        <th scope="col" class="col-6">Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    foreach ($array as $key => $pessoa) {
-                        echo "<tr>";
-                        echo "<td>$pessoa->name</td>";
-                        echo "<td>$pessoa->email</td>";
-                        echo "</tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <div class="mx-auto m-2">
-                <h6 class="text-center my-2">
-                    Listando entre <?php echo $first_item ?> e <?php echo $last_item ?> de <?php echo $total_itens ?> resultados.
-                </h6>
-                <h6 class="text-center my-2">
-                    Página <?php echo $current_page ?> de <?php echo $total_pages ?> páginas.
-                </h6>
-            </div>
-            <div class="d-flex justify-content-center">
-                <div class="btn-group" role="group" aria-label="">
-                    <a href="index.php?page=<?php echo 0; ?>" type="button" class="btn btn-primary 
+          </div>
+        </form>
+      </div>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th scope="col" class="col-6">Nome</th>
+            <th scope="col" class="col-6">Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          foreach ($array as $key => $pessoa) {
+            echo "<tr>";
+            echo "<td>$pessoa->name</td>";
+            echo "<td>$pessoa->email</td>";
+            echo "</tr>";
+          }
+          ?>
+        </tbody>
+      </table>
+      <div class="mx-auto m-2">
+        <h6 class="text-center my-2">
+          Listando entre <?php echo $first_item ?> e <?php echo $last_item ?> de <?php echo $total_itens ?> resultados.
+        </h6>
+        <h6 class="text-center my-2">
+          Página <?php echo $current_page ?> de <?php echo $total_pages ?> páginas.
+        </h6>
+      </div>
+      <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group" aria-label="">
+          <a href="index.php?page=<?php echo 0; ?>" type="button" class="btn btn-primary 
                         <?php if ($current_page == 0) echo 'disabled' ?>">
-                        Primeira
-                    </a>
-                    <a href="index.php?page=<?php echo $current_page - 1; ?>" type="button" class="btn btn-primary 
+            Primeira
+          </a>
+          <a href="index.php?page=<?php echo $current_page - 1; ?>" type="button" class="btn btn-primary 
                         <?php if ($current_page == 0) echo 'disabled' ?>">
-                        Anterior
-                    </a>
-                    <a href="index.php?page=<?php echo $current_page + 1; ?>" type="button" class="btn btn-primary
+            Anterior
+          </a>
+          <a href="index.php?page=<?php echo $current_page + 1; ?>" type="button" class="btn btn-primary
                         <?php if ($current_page == $total_pages) echo 'disabled' ?>">
-                        Próximo
-                    </a>
-                    <a href="index.php?page=<?php echo $total_pages ?>" type="button" class="btn btn-primary
+            Próximo
+          </a>
+          <a href="index.php?page=<?php echo $total_pages ?>" type="button" class="btn btn-primary
                         <?php if ($current_page == $total_pages) echo 'disabled' ?>">
-                        Última
-                    </a>
-                </div>
-            </div>
+            Última
+          </a>
         </div>
+      </div>
     </div>
-    </div>
+  </div>
+  </div>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 
 </html>
@@ -125,7 +128,7 @@ if (!empty($pesquisa)) {
 <?php
 function getJSON()
 {
-    return '[
+  return '[
         {
           "name": "Crane Cherry",
           "email": "cranecherry@earbang.com"
