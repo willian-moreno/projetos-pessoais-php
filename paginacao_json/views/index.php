@@ -12,6 +12,15 @@
 </head>
 
 <?php
+function concatZero($i)
+{
+    if ($i >= 0 && $i < 10) {
+        return '0' . $i;
+    } else {
+        return $i;
+    }
+}
+
 $json = json_decode(getJSON());
 $array = json_decode(getJSON(), true);
 
@@ -105,13 +114,13 @@ if (!empty($pesquisa)) {
                     <?= "<a href='index.php?page=" . ($current_page - 1) . "' type='button' class='btn btn-primary $disabledPreview'>Anterior</a>" ?>
                     <!-- Opções Anteriores -->
                     <?php for ($i = $limitPreview; $i < $current_page; $i++) { ?>
-                        <?= "<a href='index.php?page=$i' type='button' class='btn btn-primary' $disabledPreviewOrNext>$i</a>" ?>
+                        <?= "<a href='index.php?page=$i' type='button' class='btn btn-primary' $disabledPreviewOrNext>" . concatZero($i) . "</a>" ?>
                     <?php } ?>
                     <!-- Página atual -->
-                    <?= "<a href='index.php?page=$current_page' type='button' class='btn btn-primary active $disabledPreviewOrNext'>$current_page</a>" ?>
+                    <?= "<a href='index.php?page=$current_page' type='button' class='btn btn-primary active $disabledPreviewOrNext'>" . concatZero($current_page) . "</a>" ?>
                     <!-- Opções Posteriores -->
                     <?php for ($i = $current_page + 1; $i <= $limitNext; $i++) { ?>
-                        <?= "<a href='index.php?page=$i' type='button' class='btn btn-primary' $disabledPreviewOrNext>$i</a>" ?>
+                        <?= "<a href='index.php?page=$i' type='button' class='btn btn-primary' $disabledPreviewOrNext>" . concatZero($i) . "</a>" ?>
                     <?php } ?>
                     <!-- Próximo -->
                     <?= "<a href='index.php?page=" . ($current_page + 1) . "' type='button' class='btn btn-primary $disabledNext'>Próximo</a>" ?>
