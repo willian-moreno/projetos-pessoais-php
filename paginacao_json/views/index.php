@@ -57,6 +57,12 @@ if (!empty($pesquisa)) {
     $array = array_slice($json, $itens, $per_page, true);
 }
 
+if (@$_GET['page'] > $total_pages) {
+    header("Location: index.php?page=$total_pages");
+} else if (@$_GET['page'] < 0) {
+    header("Location: index.php?page=0");
+}
+
 ?>
 
 <body>
